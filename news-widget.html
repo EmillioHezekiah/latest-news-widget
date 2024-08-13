@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Widget</title>
+    <style>
+        .news-widget {
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 300px;
+            font-family: Arial, sans-serif;
+        }
+        .news-item {
+            margin-bottom: 10px;
+        }
+        .news-item a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="news-widget" id="news-widget">
+        <!-- News content will be inserted here by JavaScript -->
+    </div>
+    <script>
+        fetch('https://www.tradepr.work/articles/')  // Replace with your actual news endpoint
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+                const articles = doc.querySelectorAll('.article-item');  // Adjust selector based on actual structure
+                const widget = document.getElementById('news-widget');
+                articles.forEach(article => {
+                    const title = article.querySelector('h2').textContent;
+                    const link = article.querySelector('a').href;
+                    const description = article.querySelector('p') ? article.querySelector('p').textContent : 'No description available';
+                    widget.innerHTML += `
+                        <div class="news-item">
+                            <a href="${link}" target="_blank">${title}</a>
+                            <p>${description}</p>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => console.error('Error loading news:', error));
+    </script>
+</body>
+</html>
