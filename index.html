@@ -13,34 +13,33 @@
             overflow-y: auto;  /* Add scrolling if content overflows */
         }
         .news-item {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .news-item a {
             text-decoration: none;
             color: #007BFF;
-            font-size: 18px;
-            font-weight: bold;
         }
         .news-item a:hover {
             text-decoration: underline;
         }
         .news-item img {
-            width: 240px;  /* Set the width to 240px */
-            height: 120px;  /* Set the height to 120px */
-            object-fit: cover;  /* Ensure the image covers the area without distorting */
-            margin-bottom: 10px;
-        }
-        .news-item p {
-            margin: 0;
-            font-size: 14px;
-            color: #555;
+            max-width: 240px;  /* Set image width to 240px */
+            height: 120px;  /* Set image height to 120px */
         }
     </style>
 </head>
 <body>
     <div class="news-widget" id="news-widget">
-        <!-- News content will be inserted here by JavaScript -->
+        <!-- News list will be inserted here by JavaScript -->
     </div>
+
+    <!-- Placeholder for displaying full news content -->
+    <div id="news-content" style="display:none; padding: 10px; border: 1px solid #ddd; margin-top: 20px;">
+        <!-- Full news content will be displayed here -->
+        <button onclick="closeNews()">Back to News List</button>
+        <div id="news-content-inner"></div>
+    </div>
+
     <script>
         fetch('https://www.tradepr.work/articles/')  // Replace with your actual news endpoint
             .then(response => {
@@ -69,7 +68,7 @@
                         widget.innerHTML += `
                             <div class="news-item">
                                 ${imgSrc ? `<img src="${imgSrc}" alt="${title}">` : ''}
-                                <a href="${link}" target="_blank">${title}</a>
+                                <a href="#" onclick="fetchNewsContent('${link}'); return false;">${title}</a>
                                 <p>${description}</p>
                             </div>
                         `;
@@ -77,6 +76,30 @@
                 }
             })
             .catch(error => console.error('Error loading news:', error));
+
+        function fetchNewsContent(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+                    const articleContent = doc.querySelector('.your-article-content-selector'); // Adjust the selector to match the content
+                    const newsContentDiv = document.getElementById('news-content-inner');
+                    if (articleContent) {
+                        newsContentDiv.innerHTML = articleContent.innerHTML;
+                        document.getElementById('news-widget').style.display = 'none';
+                        document.getElementById('news-content').style.display = 'block';
+                    } else {
+                        newsContentDiv.innerHTML = '<p>Content not found.</p>';
+                    }
+                })
+                .catch(error => console.error('Error loading content:', error));
+        }
+
+        function closeNews() {
+            document.getElementById('news-widget').style.display = 'block';
+            document.getElementById('news-content').style.display = 'none';
+        }
     </script>
 </body>
 </html>
